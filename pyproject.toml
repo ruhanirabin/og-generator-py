@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ogimg"
+version = "0.1.0.dev0"
+description = "Deterministic, template-based social image generation"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE", "src/ogimg/templates/fonts/OFL.txt"]
+authors = [
+  { name = "Ruhani Rabin" },
+]
+dependencies = ["Pillow>=11.0,<13"]
+
+[project.urls]
+Homepage = "https://www.ruhanirabin.com"
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2",
+  "pytest>=8.0",
+  "ruff>=0.9",
+]
+
+[project.scripts]
+ogimg = "ogimg.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ogimg"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/LICENSE",
+  "/README.md",
+  "/pyproject.toml",
+  "/src",
+  "/tests",
+]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
