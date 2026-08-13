@@ -72,12 +72,21 @@ uses a `src/` layout.
 ## Usage
 
 ```sh
-ogimg "A clean article title" -o article.png
+ogimg "A clean article title"
 ```
 
-Relative output paths are created in the current directory. For example,
-running the command above from `~/Downloads` creates
-`~/Downloads/article.png`. Parent directories are created automatically:
+When `-o` is omitted, `ogimg` sanitizes the title and creates the PNG in the
+current directory. Running the command above from `~/Downloads` creates:
+
+```text
+~/Downloads/og-a-clean-article-title.png
+```
+
+The derived filename uses the `og-` prefix, lowercase ASCII letters and digits,
+hyphens in place of punctuation or whitespace, and a maximum 80-character
+slug. If a title has no ASCII representation, the fallback is `og-image.png`.
+Supplying `-o` overrides the derived filename. Parent directories are created
+automatically:
 
 ```sh
 ogimg "A clean article title" -o social/article.png
@@ -132,6 +141,33 @@ Automatic placement uses the logo's visible, non-transparent bounds: aspect
 ratios of 2:1 or wider use `top-center`, while compact logos use `top-left`.
 Corner logos do not displace the centered title; centered wordmarks reserve
 vertical space above it.
+
+## Batch generation
+
+The CLI can be called repeatedly from any external script. Create a UTF-8 text
+file with one title per line, then use the cross-platform example helper:
+
+```sh
+cp examples/titles.example.txt titles.txt
+python examples/generate_batch.py titles.txt --output-dir generated
+python examples/generate_batch.py titles.txt \
+  --output-dir generated \
+  --theme ocean-orbit \
+  --logo path/to/logo.webp
+```
+
+Each invocation lets `ogimg` derive the filename. A Bash loop works too:
+
+```sh
+mkdir -p generated
+while IFS= read -r title; do
+  [ -n "$title" ] && (cd generated && ogimg "$title" --theme deep-ocean)
+done < titles.txt
+```
+
+Duplicate or equivalent sanitized titles resolve to the same filename and the
+later image replaces the earlier one. Use explicit `-o` paths in a custom script
+when duplicates must be retained.
 
 The output directory is created when necessary. Titles are wrapped using
 rendered glyph measurements at every candidate font size. If a title cannot fit

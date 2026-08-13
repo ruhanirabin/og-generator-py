@@ -23,6 +23,10 @@ hero images from text, procedural visual themes, and optional brand assets.
   `https://github.com/ruhanirabin/og-generator-py` on the `main` branch.
 - The 1200×630 `og` preset meets Substack's documented minimum dimensions for
   social and post preview images as of 2026-08-13.
+- When `-o` is omitted, derive a current-directory filename as
+  `og-<sanitized-title>.png`; normalize Latin Unicode to ASCII, collapse other
+  characters to hyphens, cap the slug at 80 characters, and use `og-image.png`
+  when no ASCII slug remains.
 
 ## Durable decisions
 
@@ -65,6 +69,8 @@ hero images from text, procedural visual themes, and optional brand assets.
 - Support deterministic off-center radial themes using normalized center
   coordinates. The initial radial themes are upper-right `ocean-orbit` and
   left-origin `violet-bloom`.
+- Keep batch automation external to the core renderer. The CLI remains safely
+  repeatable, and a cross-platform Python helper may invoke it once per title.
 
 ## Initial implementation boundary
 
