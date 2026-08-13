@@ -15,7 +15,10 @@ class Preset:
 @dataclass(frozen=True)
 class Theme:
     name: str
+    gradient_kind: str
     gradient_start: tuple[int, int, int]
     gradient_end: tuple[int, int, int]
+    gradient_direction: tuple[int, int]
+    gradient_center: tuple[int, int] | None
     text_color: tuple[int, int, int]
     line_spacing: int

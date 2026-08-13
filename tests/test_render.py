@@ -17,6 +17,61 @@ def test_render_is_deterministic_png(tmp_path: Path) -> None:
         assert image.mode == "RGB"
 
 
+@pytest.mark.parametrize(
+    ("theme", "start", "end"),
+    [
+        ("midnight-violet", (10, 15, 35), (91, 33, 182)),
+        ("graphite-indigo", (47, 39, 78), (12, 14, 28)),
+        ("deep-ocean", (4, 20, 34), (8, 52, 72)),
+    ],
+)
+def test_theme_gradient_reaches_endpoint_colors(
+    tmp_path: Path,
+    theme: str,
+    start: tuple[int, int, int],
+    end: tuple[int, int, int],
+) -> None:
+    output = render_image("Theme", tmp_path / f"{theme}.png", theme_name=theme)
+
+    with Image.open(output) as image:
+        assert image.getpixel((0, 0)) == start
+        assert image.getpixel((1199, 629)) == end
+
+
+@pytest.mark.parametrize(
+    ("theme", "center", "start", "far_corner", "end"),
+    [
+        (
+            "ocean-orbit",
+            (1079, 113),
+            (14, 67, 88),
+            (0, 629),
+            (3, 16, 30),
+        ),
+        (
+            "violet-bloom",
+            (59, 314),
+            (95, 44, 170),
+            (1199, 0),
+            (9, 13, 30),
+        ),
+    ],
+)
+def test_radial_theme_uses_off_center_origin(
+    tmp_path: Path,
+    theme: str,
+    center: tuple[int, int],
+    start: tuple[int, int, int],
+    far_corner: tuple[int, int],
+    end: tuple[int, int, int],
+) -> None:
+    output = render_image("Radial", tmp_path / f"{theme}.png", theme_name=theme)
+
+    with Image.open(output) as image:
+        assert image.getpixel(center) == start
+        assert image.getpixel(far_corner) == end
+
+
 def test_render_rejects_blank_title(tmp_path: Path) -> None:
     with pytest.raises(RenderError, match="does not fit"):
         render_image("   ", tmp_path / "blank.png")

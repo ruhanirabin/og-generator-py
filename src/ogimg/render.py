@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from importlib.resources import as_file, files
+from math import isqrt
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -19,14 +20,41 @@ class RenderError(ValueError):
 def _gradient(preset: Preset, theme: Theme) -> Image.Image:
     image = Image.new("RGB", (preset.width, preset.height))
     pixels = image.load()
-    denominator = max(preset.height - 1, 1)
-    for y in range(preset.height):
-        color = tuple(
-            start + ((end - start) * y // denominator)
-            for start, end in zip(theme.gradient_start, theme.gradient_end, strict=True)
+    if theme.gradient_kind == "linear":
+        horizontal, vertical = theme.gradient_direction
+        denominator = max(
+            (preset.width - 1) * horizontal + (preset.height - 1) * vertical, 1
         )
+
+        def progress_at(x: int, y: int) -> int:
+            return x * horizontal + y * vertical
+
+    elif theme.gradient_kind == "radial" and theme.gradient_center is not None:
+        center_x = (preset.width - 1) * theme.gradient_center[0] // 1000
+        center_y = (preset.height - 1) * theme.gradient_center[1] // 1000
+        corner_distances = (
+            center_x**2 + center_y**2,
+            (preset.width - 1 - center_x) ** 2 + center_y**2,
+            center_x**2 + (preset.height - 1 - center_y) ** 2,
+            (preset.width - 1 - center_x) ** 2 + (preset.height - 1 - center_y) ** 2,
+        )
+        denominator = max(isqrt(max(corner_distances)), 1)
+
+        def progress_at(x: int, y: int) -> int:
+            return min(isqrt((x - center_x) ** 2 + (y - center_y) ** 2), denominator)
+
+    else:
+        raise RenderError(f"Unsupported gradient kind: {theme.gradient_kind}")
+
+    for y in range(preset.height):
         for x in range(preset.width):
-            pixels[x, y] = color
+            progress = progress_at(x, y)
+            pixels[x, y] = tuple(
+                start + ((end - start) * progress // denominator)
+                for start, end in zip(
+                    theme.gradient_start, theme.gradient_end, strict=True
+                )
+            )
     return image
 
 

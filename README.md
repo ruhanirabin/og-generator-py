@@ -3,15 +3,37 @@
 `ogimg` is a small, deterministic command-line utility for generating clean,
 template-based Open Graph images from a title and a procedural background.
 
-The current vertical slice includes one 1200×630 `og` preset, one
-`midnight-violet` gradient theme, measured title wrapping and fitting, clear
-overflow errors, and PNG output.
+The current vertical slice includes one 1200×630 `og` preset, five procedural
+gradient themes, measured title wrapping and fitting, optional adaptive logo
+placement, clear overflow errors, and PNG output.
 
 ## Install
 
-The repository is currently private. GitHub users with access and a configured
-SSH key can install the CLI in an isolated environment with
-[pipx](https://pipx.pypa.io/):
+`ogimg` requires Python 3.10 or newer. Install
+[pipx](https://pipx.pypa.io/stable/installation/) before installing the CLI:
+
+```sh
+# Fedora
+sudo dnf install pipx
+
+# Ubuntu 23.04 or newer
+sudo apt update && sudo apt install pipx
+
+# macOS with Homebrew
+brew install pipx
+
+# Windows PowerShell, with Python already installed
+py -m pip install --user pipx
+```
+
+Then add the pipx application directory to `PATH` and restart the terminal:
+
+```sh
+pipx ensurepath
+```
+
+The repository is currently private. A GitHub user with repository access and
+a configured SSH key can install it into an isolated environment:
 
 ```sh
 pipx install git+ssh://git@github.com/ruhanirabin/og-generator-py.git
@@ -21,6 +43,18 @@ ogimg "A clean article title" -o article.png
 Run `pipx ensurepath` and restart the terminal if the `ogimg` command is not
 found after installation. Public installation instructions will be added when
 the repository or a packaged release becomes public.
+
+Verify, update, or remove the installation:
+
+```sh
+ogimg --help
+pipx list
+pipx reinstall ogimg
+pipx uninstall ogimg
+```
+
+`pipx reinstall ogimg` installs the latest commit available from the configured
+Git source, so repository changes must be pushed first.
 
 ## Install for development
 
@@ -41,11 +75,40 @@ uses a `src/` layout.
 ogimg "A clean article title" -o article.png
 ```
 
+Relative output paths are created in the current directory. For example,
+running the command above from `~/Downloads` creates
+`~/Downloads/article.png`. Parent directories are created automatically:
+
+```sh
+ogimg "A clean article title" -o social/article.png
+```
+
+The built-in `og` preset is 1200×630. This is the standard Open Graph canvas
+used by the project and meets Substack's recommended minimum dimensions for a
+[social or post preview image](https://support.substack.com/hc/en-us/articles/4408381685268-What-are-the-optimal-image-dimensions-for-my-Substack-publication).
+
 The currently available choices are explicit in the command help:
 
 ```sh
 ogimg --help
 ogimg "A clean article title" --preset og --theme midnight-violet -o article.png
+```
+
+Choose one of the built-in procedural themes:
+
+| Theme | Direction | Character |
+| --- | --- | --- |
+| `midnight-violet` | vertical | dark navy into vivid violet |
+| `graphite-indigo` | diagonal | restrained plum-indigo into graphite |
+| `deep-ocean` | horizontal | deep navy into muted teal-blue |
+| `ocean-orbit` | off-center radial | muted teal glow from the upper right |
+| `violet-bloom` | off-center radial | violet glow from the left |
+
+```sh
+ogimg "A clean article title" --theme graphite-indigo -o graphite.png
+ogimg "A clean article title" --theme deep-ocean -o ocean.png
+ogimg "A clean article title" --theme ocean-orbit -o orbit.png
+ogimg "A clean article title" --theme violet-bloom -o bloom.png
 ```
 
 Add an optional transparent PNG or WebP logo. In `auto` mode, compact logos are
@@ -114,9 +177,9 @@ verified in CI before it is advertised as tested.
 
 ## Scope
 
-Balanced wrapping refinements, more presets and themes, optional logos, WebP,
-configuration, and cross-platform CI are planned follow-up phases. Raster base
-images are outside the core template model.
+Balanced wrapping refinements, more presets, WebP, configuration, and
+cross-platform CI are planned follow-up phases. Raster base images are outside
+the core template model.
 
 Project and contributor guidance lives in [AGENTS.md](AGENTS.md). Durable
 architecture context lives in [docs/project-memory.md](docs/project-memory.md).

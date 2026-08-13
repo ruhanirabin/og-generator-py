@@ -8,9 +8,9 @@ hero images from text, procedural visual themes, and optional brand assets.
 ## Current baseline
 
 - The first end-to-end vertical slice was implemented on 2026-08-13.
-- It provides an installable `ogimg` command, one `og` preset, one
-  `midnight-violet` procedural theme, measured balanced title fitting, clear
-  overflow errors, and deterministic PNG output.
+- It provides an installable `ogimg` command, one `og` preset, five procedural
+  themes, measured balanced title fitting, clear overflow errors, and
+  deterministic PNG output.
 - The primary development environment is Linux. The implementation is designed
   for Linux, macOS, and Windows, but only Linux has been verified so far.
 - Optional PNG or WebP logo compositing crops transparent margins and uses
@@ -21,6 +21,8 @@ hero images from text, procedural visual themes, and optional brand assets.
   additional presets and themes, and release automation remain future phases.
 - The source is tracked in the private GitHub repository
   `https://github.com/ruhanirabin/og-generator-py` on the `main` branch.
+- The 1200×630 `og` preset meets Substack's documented minimum dimensions for
+  social and post preview images as of 2026-08-13.
 
 ## Durable decisions
 
@@ -57,6 +59,12 @@ hero images from text, procedural visual themes, and optional brand assets.
   source canvas: aspect ratios of 2:1 or wider are centered wordmarks; compact
   marks use the top left. Allow explicit top-left, top-center, and top-right
   overrides.
+- Keep the initial theme set curated and procedural: vertical
+  `midnight-violet`, diagonal `graphite-indigo`, and horizontal `deep-ocean`.
+  Gradient direction and endpoint colors belong to the theme, not the preset.
+- Support deterministic off-center radial themes using normalized center
+  coordinates. The initial radial themes are upper-right `ocean-orbit` and
+  left-origin `violet-bloom`.
 
 ## Initial implementation boundary
 
