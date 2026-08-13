@@ -31,7 +31,17 @@ def test_cli_accepts_logo(tmp_path: Path) -> None:
     Image.new("RGBA", (20, 20), "white").save(logo)
     output = tmp_path / "with-logo.png"
 
-    result = main(["Branded image", "--logo", str(logo), "-o", str(output)])
+    result = main(
+        [
+            "Branded image",
+            "--logo",
+            str(logo),
+            "--logo-position",
+            "top-right",
+            "-o",
+            str(output),
+        ]
+    )
 
     assert result == 0
     assert output.exists()

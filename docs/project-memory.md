@@ -13,10 +13,12 @@ hero images from text, procedural visual themes, and optional brand assets.
   overflow errors, and deterministic PNG output.
 - The primary development environment is Linux. The implementation is designed
   for Linux, macOS, and Windows, but only Linux has been verified so far.
-- Optional PNG or WebP logo compositing uses proportional resizing and treats
-  the logo as a fixed top anchor with the title beginning after a fixed gap.
-  WebP output, configuration, additional presets and themes, and release
-  automation remain future phases.
+- Optional PNG or WebP logo compositing crops transparent margins and uses
+  visible aspect ratio for automatic placement: wordmarks at least 2:1 use
+  `top-center`; compact logos use `top-left`. Explicit top-left, top-center, and
+  top-right overrides are supported. Corner logos do not displace the title;
+  centered wordmarks reserve vertical space. WebP output, configuration,
+  additional presets and themes, and release automation remain future phases.
 - The source is tracked in the private GitHub repository
   `https://github.com/ruhanirabin/og-generator-py` on the `main` branch.
 
@@ -51,6 +53,10 @@ hero images from text, procedural visual themes, and optional brand assets.
   (`https://www.ruhanirabin.com`) as the public author identity.
 - Keep the GitHub repository private while the initial implementation is being
   refined; do not describe it as publicly installable until visibility changes.
+- Determine automatic logo placement from visible alpha bounds rather than the
+  source canvas: aspect ratios of 2:1 or wider are centered wordmarks; compact
+  marks use the top left. Allow explicit top-left, top-center, and top-right
+  overrides.
 
 ## Initial implementation boundary
 

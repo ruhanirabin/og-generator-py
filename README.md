@@ -48,12 +48,27 @@ ogimg --help
 ogimg "A clean article title" --preset og --theme midnight-violet -o article.png
 ```
 
-Add an optional transparent PNG or WebP logo. It is proportionally resized and
-centered near the top, with the title positioned a fixed distance below it:
+Add an optional transparent PNG or WebP logo. In `auto` mode, compact logos are
+placed at the top left and wide wordmarks are centered above the title:
 
 ```sh
 ogimg "A clean article title" --logo path/to/logo.webp -o article.png
 ```
+
+Override the inferred placement when needed:
+
+```sh
+ogimg "A clean article title" \
+  --logo path/to/logo.webp \
+  --logo-position top-right \
+  -o article.png
+```
+
+Available positions are `auto`, `top-left`, `top-center`, and `top-right`.
+Automatic placement uses the logo's visible, non-transparent bounds: aspect
+ratios of 2:1 or wider use `top-center`, while compact logos use `top-left`.
+Corner logos do not displace the centered title; centered wordmarks reserve
+vertical space above it.
 
 The output directory is created when necessary. Titles are wrapped using
 rendered glyph measurements at every candidate font size. If a title cannot fit

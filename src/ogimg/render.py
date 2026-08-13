@@ -9,6 +9,8 @@ from ogimg.layout import fit_title
 from ogimg.models import Preset, Theme
 from ogimg.templates import PRESETS, THEMES
 
+LOGO_POSITIONS = ("auto", "top-left", "top-center", "top-right")
+
 
 class RenderError(ValueError):
     """Raised when supplied content cannot be rendered safely."""
@@ -37,7 +39,23 @@ def _load_logo(logo_path: Path) -> Image.Image:
     except Image.UnidentifiedImageError as error:
         raise RenderError(f"Logo is not a supported image: {logo_path}") from error
 
-    logo.thumbnail((112, 112), Image.Resampling.LANCZOS)
+    visible_bounds = logo.getchannel("A").getbbox()
+    if visible_bounds is None:
+        raise RenderError(f"Logo has no visible pixels: {logo_path}")
+    return logo.crop(visible_bounds)
+
+
+def _resolve_logo_position(logo: Image.Image, position: str) -> str:
+    if position not in LOGO_POSITIONS:
+        raise RenderError(f"Unknown logo position: {position}")
+    if position != "auto":
+        return position
+    return "top-center" if logo.width / logo.height >= 2 else "top-left"
+
+
+def _size_logo(logo: Image.Image, position: str) -> Image.Image:
+    max_size = (280, 80) if position == "top-center" else (112, 112)
+    logo.thumbnail(max_size, Image.Resampling.LANCZOS)
     return logo
 
 
@@ -48,6 +66,7 @@ def render_image(
     preset_name: str = "og",
     theme_name: str = "midnight-violet",
     logo: str | Path | None = None,
+    logo_position: str = "auto",
 ) -> Path:
     try:
         preset = PRESETS[preset_name]
@@ -66,9 +85,18 @@ def render_image(
     draw = ImageDraw.Draw(image)
     left, top, right, bottom = preset.text_box
     logo_image = _load_logo(Path(logo)) if logo is not None else None
+    resolved_logo_position = (
+        _resolve_logo_position(logo_image, logo_position)
+        if logo_image is not None
+        else None
+    )
+    if logo_image is not None and resolved_logo_position is not None:
+        logo_image = _size_logo(logo_image, resolved_logo_position)
     logo_gap = 36 if logo_image is not None else 0
     logo_height = logo_image.height if logo_image is not None else 0
-    available_text_height = bottom - top - logo_height - logo_gap
+    available_text_height = bottom - top
+    if resolved_logo_position == "top-center":
+        available_text_height -= logo_height + logo_gap
     font_resource = files("ogimg.templates").joinpath("fonts/NotoSans.ttf")
     with as_file(font_resource) as font_path:
         layout = fit_title(
@@ -90,9 +118,17 @@ def render_image(
 
     if logo_image is not None:
         logo_y = 64
-        logo_x = (preset.width - logo_image.width) // 2
+        if resolved_logo_position == "top-left":
+            logo_x = 64
+        elif resolved_logo_position == "top-right":
+            logo_x = preset.width - 64 - logo_image.width
+        else:
+            logo_x = (preset.width - logo_image.width) // 2
         image.paste(logo_image, (logo_x, logo_y), logo_image)
-        y = logo_y + logo_height + logo_gap
+        if resolved_logo_position == "top-center":
+            y = logo_y + logo_height + logo_gap
+        else:
+            y = top + ((bottom - top - layout.total_height) // 2)
     else:
         y = top + ((bottom - top - layout.total_height) // 2)
     for line, width in zip(layout.lines, layout.line_widths, strict=True):
