@@ -15,6 +15,7 @@ def main() -> int:
     )
     parser.add_argument("--theme", default="midnight-violet")
     parser.add_argument("--logo", type=Path)
+    parser.add_argument("--format", choices=("png", "webp"), default="png")
     args = parser.parse_args()
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -24,7 +25,14 @@ def main() -> int:
         if line.strip()
     ]
     for title in titles:
-        command = ["ogimg", title, "--theme", args.theme]
+        command = [
+            "ogimg",
+            title,
+            "--theme",
+            args.theme,
+            "--format",
+            args.format,
+        ]
         if args.logo is not None:
             command.extend(("--logo", str(args.logo.resolve())))
         subprocess.run(command, cwd=args.output_dir, check=True)

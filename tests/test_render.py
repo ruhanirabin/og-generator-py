@@ -77,9 +77,32 @@ def test_render_rejects_blank_title(tmp_path: Path) -> None:
         render_image("   ", tmp_path / "blank.png")
 
 
-def test_render_rejects_non_png_output(tmp_path: Path) -> None:
-    with pytest.raises(RenderError, match=".png output only"):
-        render_image("Title", tmp_path / "image.webp")
+def test_render_is_deterministic_lossy_webp(tmp_path: Path) -> None:
+    first = render_image("WebP social image", tmp_path / "first.webp")
+    second = render_image("WebP social image", tmp_path / "second.webp")
+
+    assert first.read_bytes() == second.read_bytes()
+    with Image.open(first) as image:
+        assert image.format == "WEBP"
+        assert image.size == (1200, 630)
+        assert image.mode == "RGB"
+
+
+def test_render_rejects_unknown_output_extension(tmp_path: Path) -> None:
+    with pytest.raises(RenderError, match=".png or .webp"):
+        render_image("Title", tmp_path / "image.jpg")
+
+
+def test_render_adds_extension_for_explicit_format(tmp_path: Path) -> None:
+    output = render_image("WebP", tmp_path / "image", output_format="webp")
+
+    assert output == tmp_path / "image.webp"
+    assert output.exists()
+
+
+def test_render_rejects_format_extension_conflict(tmp_path: Path) -> None:
+    with pytest.raises(RenderError, match="conflicts"):
+        render_image("Title", tmp_path / "image.png", output_format="webp")
 
 
 def test_render_composites_transparent_logo(tmp_path: Path) -> None:

@@ -5,7 +5,7 @@ template-based Open Graph images from a title and a procedural background.
 
 The current vertical slice includes one 1200×630 `og` preset, five procedural
 gradient themes, measured title wrapping and fitting, optional adaptive logo
-placement, clear overflow errors, and PNG output.
+placement, clear overflow errors, and PNG or WebP output.
 
 ## Install
 
@@ -92,6 +92,24 @@ automatically:
 ogimg "A clean article title" -o social/article.png
 ```
 
+Output format is inferred from an explicit filename:
+
+```sh
+ogimg "A clean article title" -o article.webp
+ogimg "A clean article title" -o article.png
+```
+
+With no `-o`, use `--format webp` to derive a `.webp` filename:
+
+```sh
+ogimg "A clean article title" --format webp
+# creates og-a-clean-article-title.webp
+```
+
+WebP uses fixed lossy settings (`quality=85`, `method=6`) selected for social
+preview graphics with gradients and large text. PNG remains lossless and is the
+default when no format is specified.
+
 The built-in `og` preset is 1200×630. This is the standard Open Graph canvas
 used by the project and meets Substack's recommended minimum dimensions for a
 [social or post preview image](https://support.substack.com/hc/en-us/articles/4408381685268-What-are-the-optimal-image-dimensions-for-my-Substack-publication).
@@ -153,6 +171,7 @@ python examples/generate_batch.py titles.txt --output-dir generated
 python examples/generate_batch.py titles.txt \
   --output-dir generated \
   --theme ocean-orbit \
+  --format webp \
   --logo path/to/logo.webp
 ```
 
@@ -213,9 +232,9 @@ verified in CI before it is advertised as tested.
 
 ## Scope
 
-Balanced wrapping refinements, more presets, WebP, configuration, and
-cross-platform CI are planned follow-up phases. Raster base images are outside
-the core template model.
+Balanced wrapping refinements, more presets, configuration, and cross-platform
+CI are planned follow-up phases. Raster base images are outside the core
+template model.
 
 Project and contributor guidance lives in [AGENTS.md](AGENTS.md). Durable
 architecture context lives in [docs/project-memory.md](docs/project-memory.md).

@@ -10,15 +10,15 @@ hero images from text, procedural visual themes, and optional brand assets.
 - The first end-to-end vertical slice was implemented on 2026-08-13.
 - It provides an installable `ogimg` command, one `og` preset, five procedural
   themes, measured balanced title fitting, clear overflow errors, and
-  deterministic PNG output.
+  deterministic PNG or quality-85 WebP output.
 - The primary development environment is Linux. The implementation is designed
   for Linux, macOS, and Windows, but only Linux has been verified so far.
 - Optional PNG or WebP logo compositing crops transparent margins and uses
   visible aspect ratio for automatic placement: wordmarks at least 2:1 use
   `top-center`; compact logos use `top-left`. Explicit top-left, top-center, and
   top-right overrides are supported. Corner logos do not displace the title;
-  centered wordmarks reserve vertical space. WebP output, configuration,
-  additional presets and themes, and release automation remain future phases.
+  centered wordmarks reserve vertical space. Configuration, additional presets
+  and themes, and release automation remain future phases.
 - The source is tracked in the private GitHub repository
   `https://github.com/ruhanirabin/og-generator-py` on the `main` branch.
 - The 1200×630 `og` preset meets Substack's documented minimum dimensions for
@@ -40,7 +40,8 @@ hero images from text, procedural visual themes, and optional brand assets.
 - Title fitting uses measured glyph bounds and evaluates balanced line breaks.
 - Titles that cannot fit above a readable minimum size fail clearly by default.
 - Infer PNG or WebP output from the output filename, with an explicit format
-  override available if useful.
+  override. PNG is the default; WebP uses fixed lossy settings of quality 85
+  and method 6 for social-preview delivery.
 - Runtime behavior must not depend on POSIX shell commands, current-directory
   resource paths, or system-installed ImageMagick.
 - Built-in assets must have redistribution-compatible licenses recorded in the

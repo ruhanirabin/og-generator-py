@@ -11,10 +11,32 @@ from ogimg.models import Preset, Theme
 from ogimg.templates import PRESETS, THEMES
 
 LOGO_POSITIONS = ("auto", "top-left", "top-center", "top-right")
+OUTPUT_FORMATS = ("png", "webp")
 
 
 class RenderError(ValueError):
     """Raised when supplied content cannot be rendered safely."""
+
+
+def _resolve_output(output: str | Path, output_format: str | None) -> tuple[Path, str]:
+    output_path = Path(output)
+    suffix_format = output_path.suffix.lower().removeprefix(".")
+    if output_format is not None and output_format not in OUTPUT_FORMATS:
+        raise RenderError(f"Unsupported output format: {output_format}")
+    if suffix_format and suffix_format not in OUTPUT_FORMATS:
+        raise RenderError("Output must use a .png or .webp extension")
+    if output_format is not None:
+        if suffix_format and suffix_format != output_format:
+            raise RenderError(
+                f"Output extension .{suffix_format} conflicts with "
+                f"format {output_format}"
+            )
+        if not suffix_format:
+            output_path = output_path.with_suffix(f".{output_format}")
+        return output_path, output_format
+    if not suffix_format:
+        raise RenderError("Output must use a .png or .webp extension")
+    return output_path, suffix_format
 
 
 def _gradient(preset: Preset, theme: Theme) -> Image.Image:
@@ -95,6 +117,7 @@ def render_image(
     theme_name: str = "midnight-violet",
     logo: str | Path | None = None,
     logo_position: str = "auto",
+    output_format: str | None = None,
 ) -> Path:
     try:
         preset = PRESETS[preset_name]
@@ -105,9 +128,7 @@ def render_image(
     except KeyError as error:
         raise RenderError(f"Unknown theme: {theme_name}") from error
 
-    output_path = Path(output)
-    if output_path.suffix.lower() != ".png":
-        raise RenderError("The first implementation supports .png output only")
+    output_path, resolved_format = _resolve_output(output, output_format)
 
     image = _gradient(preset, theme)
     draw = ImageDraw.Draw(image)
@@ -165,5 +186,8 @@ def render_image(
         y += layout.line_height + theme.line_spacing
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    image.save(output_path, format="PNG", optimize=False, compress_level=9)
+    if resolved_format == "png":
+        image.save(output_path, format="PNG", optimize=False, compress_level=9)
+    else:
+        image.save(output_path, format="WEBP", lossless=False, quality=85, method=6)
     return output_path

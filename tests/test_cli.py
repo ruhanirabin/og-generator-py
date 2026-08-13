@@ -39,6 +39,18 @@ def test_default_output_path_falls_back_for_non_ascii_title() -> None:
     assert default_output_path("你好世界") == Path("og-image.png")
 
 
+def test_cli_derives_webp_output_from_format(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    result = main(["Social preview", "--format", "webp"])
+
+    output = tmp_path / "og-social-preview.webp"
+    assert result == 0
+    with Image.open(output) as image:
+        assert image.format == "WEBP"
+        assert image.size == (1200, 630)
+
+
 def test_cli_reports_overflow(tmp_path: Path, capsys) -> None:
     output = tmp_path / "overflow.png"
 
