@@ -13,8 +13,12 @@ hero images from text, procedural visual themes, and optional brand assets.
   overflow errors, and deterministic PNG output.
 - The primary development environment is Linux. The implementation is designed
   for Linux, macOS, and Windows, but only Linux has been verified so far.
-- Logo compositing, WebP output, configuration, additional presets and themes,
-  and release automation remain future phases.
+- Optional PNG or WebP logo compositing uses proportional resizing and treats
+  the logo as a fixed top anchor with the title beginning after a fixed gap.
+  WebP output, configuration, additional presets and themes, and release
+  automation remain future phases.
+- The source is tracked in the private GitHub repository
+  `https://github.com/ruhanirabin/og-generator-py` on the `main` branch.
 
 ## Durable decisions
 
@@ -45,6 +49,8 @@ hero images from text, procedural visual themes, and optional brand assets.
   supported Pillow-version policy is narrower.
 - Release the project under the MIT License with Ruhani Rabin
   (`https://www.ruhanirabin.com`) as the public author identity.
+- Keep the GitHub repository private while the initial implementation is being
+  refined; do not describe it as publicly installable until visibility changes.
 
 ## Initial implementation boundary
 

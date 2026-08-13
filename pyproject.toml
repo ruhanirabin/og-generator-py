@@ -17,6 +17,8 @@ dependencies = ["Pillow>=11.0,<13"]
 
 [project.urls]
 Homepage = "https://www.ruhanirabin.com"
+Repository = "https://github.com/ruhanirabin/og-generator-py"
+Issues = "https://github.com/ruhanirabin/og-generator-py/issues"
 
 [project.optional-dependencies]
 dev = [

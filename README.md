@@ -7,11 +7,28 @@ The current vertical slice includes one 1200×630 `og` preset, one
 `midnight-violet` gradient theme, measured title wrapping and fitting, clear
 overflow errors, and PNG output.
 
+## Install
+
+The repository is currently private. GitHub users with access and a configured
+SSH key can install the CLI in an isolated environment with
+[pipx](https://pipx.pypa.io/):
+
+```sh
+pipx install git+ssh://git@github.com/ruhanirabin/og-generator-py.git
+ogimg "A clean article title" -o article.png
+```
+
+Run `pipx ensurepath` and restart the terminal if the `ogimg` command is not
+found after installation. Public installation instructions will be added when
+the repository or a packaged release becomes public.
+
 ## Install for development
 
 `ogimg` requires Python 3.10 or newer. From the repository root:
 
 ```sh
+git clone git@github.com:ruhanirabin/og-generator-py.git
+cd og-generator-py
 python -m pip install -e '.[dev]'
 ```
 
@@ -29,6 +46,13 @@ The currently available choices are explicit in the command help:
 ```sh
 ogimg --help
 ogimg "A clean article title" --preset og --theme midnight-violet -o article.png
+```
+
+Add an optional transparent PNG or WebP logo. It is proportionally resized and
+centered near the top, with the title positioned a fixed distance below it:
+
+```sh
+ogimg "A clean article title" --logo path/to/logo.webp -o article.png
 ```
 
 The output directory is created when necessary. Titles are wrapped using
@@ -81,6 +105,9 @@ images are outside the core template model.
 
 Project and contributor guidance lives in [AGENTS.md](AGENTS.md). Durable
 architecture context lives in [docs/project-memory.md](docs/project-memory.md).
+The source repository is
+[ruhanirabin/og-generator-py](https://github.com/ruhanirabin/og-generator-py)
+and is private during early development.
 
 ## License
 

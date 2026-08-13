@@ -28,12 +28,26 @@ def _gradient(preset: Preset, theme: Theme) -> Image.Image:
     return image
 
 
+def _load_logo(logo_path: Path) -> Image.Image:
+    try:
+        with Image.open(logo_path) as source:
+            logo = source.convert("RGBA")
+    except FileNotFoundError as error:
+        raise RenderError(f"Logo file does not exist: {logo_path}") from error
+    except Image.UnidentifiedImageError as error:
+        raise RenderError(f"Logo is not a supported image: {logo_path}") from error
+
+    logo.thumbnail((112, 112), Image.Resampling.LANCZOS)
+    return logo
+
+
 def render_image(
     title: str,
     output: str | Path,
     *,
     preset_name: str = "og",
     theme_name: str = "midnight-violet",
+    logo: str | Path | None = None,
 ) -> Path:
     try:
         preset = PRESETS[preset_name]
@@ -51,6 +65,10 @@ def render_image(
     image = _gradient(preset, theme)
     draw = ImageDraw.Draw(image)
     left, top, right, bottom = preset.text_box
+    logo_image = _load_logo(Path(logo)) if logo is not None else None
+    logo_gap = 36 if logo_image is not None else 0
+    logo_height = logo_image.height if logo_image is not None else 0
+    available_text_height = bottom - top - logo_height - logo_gap
     font_resource = files("ogimg.templates").joinpath("fonts/NotoSans.ttf")
     with as_file(font_resource) as font_path:
         layout = fit_title(
@@ -58,7 +76,7 @@ def render_image(
             title,
             str(font_path),
             right - left,
-            bottom - top,
+            available_text_height,
             preset.max_font_size,
             preset.min_font_size,
             preset.max_lines,
@@ -70,7 +88,13 @@ def render_image(
             f"readable size ({preset.min_font_size}px)"
         )
 
-    y = top + ((bottom - top - layout.total_height) // 2)
+    if logo_image is not None:
+        logo_y = 64
+        logo_x = (preset.width - logo_image.width) // 2
+        image.paste(logo_image, (logo_x, logo_y), logo_image)
+        y = logo_y + logo_height + logo_gap
+    else:
+        y = top + ((bottom - top - layout.total_height) // 2)
     for line, width in zip(layout.lines, layout.line_widths, strict=True):
         x = left + ((right - left - width) // 2)
         draw.text((x, y), line, font=layout.font, fill=theme.text_color)

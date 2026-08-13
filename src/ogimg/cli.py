@@ -19,6 +19,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--preset", choices=PRESETS, default="og")
     parser.add_argument("--theme", choices=THEMES, default="midnight-violet")
+    parser.add_argument(
+        "--logo",
+        type=Path,
+        help="Optional PNG or WebP logo, centered above the title",
+    )
     return parser
 
 
@@ -30,6 +35,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.output,
             preset_name=args.preset,
             theme_name=args.theme,
+            logo=args.logo,
         )
     except (RenderError, OSError) as error:
         print(f"ogimg: error: {error}", file=sys.stderr)

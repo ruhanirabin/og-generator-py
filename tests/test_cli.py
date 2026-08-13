@@ -24,3 +24,14 @@ def test_cli_reports_overflow(tmp_path: Path, capsys) -> None:
     assert result == 2
     assert "minimum readable size" in capsys.readouterr().err
     assert not output.exists()
+
+
+def test_cli_accepts_logo(tmp_path: Path) -> None:
+    logo = tmp_path / "logo.png"
+    Image.new("RGBA", (20, 20), "white").save(logo)
+    output = tmp_path / "with-logo.png"
+
+    result = main(["Branded image", "--logo", str(logo), "-o", str(output)])
+
+    assert result == 0
+    assert output.exists()
