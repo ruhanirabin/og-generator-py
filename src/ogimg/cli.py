@@ -1,3 +1,5 @@
+"""Command-line interface; the project version is defined in root VERSION."""
+
 from __future__ import annotations
 
 import argparse
@@ -7,6 +9,7 @@ import unicodedata
 from collections.abc import Sequence
 from pathlib import Path
 
+from ogimg import __version__
 from ogimg.render import LOGO_POSITIONS, OUTPUT_FORMATS, RenderError, render_image
 from ogimg.templates import PRESETS, THEMES
 
@@ -23,6 +26,9 @@ def default_output_path(title: str, output_format: str = "png") -> Path:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="ogimg", description="Generate a deterministic social image from a title."
+    )
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {__version__}"
     )
     parser.add_argument("title", help="Title to render")
     parser.add_argument(

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ogimg"
-version = "0.1.0.dev0"
+dynamic = ["version"]
 description = "Deterministic, template-based social image generation"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -35,12 +35,18 @@ packages = ["src/ogimg"]
 
 [tool.hatch.build.targets.sdist]
 include = [
+  "/CHANGELOG.md",
   "/LICENSE",
   "/README.md",
+  "/VERSION",
   "/pyproject.toml",
   "/src",
   "/tests",
 ]
+
+[tool.hatch.version]
+path = "VERSION"
+pattern = "^(?P<version>.+)$"
 
 [tool.pytest.ini_options]
 addopts = "-ra"

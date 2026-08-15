@@ -1,8 +1,20 @@
+"""CLI tests; the project version is defined in the root VERSION file."""
+
 from pathlib import Path
 
+import pytest
 from PIL import Image
 
 from ogimg.cli import default_output_path, main
+
+
+def test_cli_reports_package_version(capsys) -> None:
+    from ogimg import __version__
+
+    with pytest.raises(SystemExit, match="0"):
+        main(["--version"])
+
+    assert capsys.readouterr().out.strip() == f"ogimg {__version__}"
 
 
 def test_cli_generates_png(tmp_path: Path, capsys) -> None:

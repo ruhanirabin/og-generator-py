@@ -1,3 +1,5 @@
+"""Built-in presets and themes; the project version is defined in root VERSION."""
+
 from ogimg.models import Preset, Theme
 
 PRESETS = {

@@ -1,3 +1,5 @@
+"""Title-layout tests; the project version is defined in root VERSION."""
+
 from importlib.resources import as_file, files
 
 from PIL import Image, ImageDraw

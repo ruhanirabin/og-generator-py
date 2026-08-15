@@ -1,3 +1,5 @@
+"""Deterministic image renderer; the project version is defined in root VERSION."""
+
 from __future__ import annotations
 
 from importlib.resources import as_file, files

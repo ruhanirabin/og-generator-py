@@ -19,8 +19,9 @@ hero images from text, procedural visual themes, and optional brand assets.
   top-right overrides are supported. Corner logos do not displace the title;
   centered wordmarks reserve vertical space. Configuration, additional presets
   and themes, and release automation remain future phases.
-- The source is tracked in the private GitHub repository
-  `https://github.com/ruhanirabin/og-generator-py` on the `main` branch.
+- The source repository is
+  `https://github.com/ruhanirabin/og-generator-py` on the `main` branch, and
+  project documentation is written for a public audience.
 - The 1200×630 `og` preset meets Substack's documented minimum dimensions for
   social and post preview images as of 2026-08-13.
 - When `-o` is omitted, derive a current-directory filename as
@@ -58,8 +59,8 @@ hero images from text, procedural visual themes, and optional brand assets.
   supported Pillow-version policy is narrower.
 - Release the project under the MIT License with Ruhani Rabin
   (`https://www.ruhanirabin.com`) as the public author identity.
-- Keep the GitHub repository private while the initial implementation is being
-  refined; do not describe it as publicly installable until visibility changes.
+- Present the project as public-facing and document source installation from
+  GitHub without access-status caveats.
 - Determine automatic logo placement from visible alpha bounds rather than the
   source canvas: aspect ratios of 2:1 or wider are centered wordmarks; compact
   marks use the top left. Allow explicit top-left, top-center, and top-right
@@ -72,6 +73,12 @@ hero images from text, procedural visual themes, and optional brand assets.
   left-origin `violet-bloom`.
 - Keep batch automation external to the core renderer. The CLI remains safely
   repeatable, and a cross-platform Python helper may invoke it once per title.
+- Keep the canonical project version in the root `VERSION` file. Hatchling
+  reads it for distribution metadata, and runtime version reporting reads the
+  installed package metadata rather than duplicating a literal version.
+- Maintain `CHANGELOG.md` in Keep a Changelog format, with versions following
+  Semantic Versioning and development versions expressed in PEP 440 form where
+  packaging requires it.
 
 ## Initial implementation boundary
 

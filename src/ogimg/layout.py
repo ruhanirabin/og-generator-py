@@ -1,3 +1,5 @@
+"""Measured title layout; the project version is defined in root VERSION."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

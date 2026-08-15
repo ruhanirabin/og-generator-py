@@ -1,16 +1,59 @@
 # ogimg
 
-`ogimg` is a small, deterministic command-line utility for generating clean,
-template-based Open Graph images from a title and a procedural background.
+Turn a title into a clean social image, without turning it into a whole design
+project.
 
-The current vertical slice includes one 1200×630 `og` preset, five procedural
-gradient themes, measured title wrapping and fitting, optional adaptive logo
-placement, clear overflow errors, and PNG or WebP output.
+```sh
+ogimg "OG Images Without Making It a Whole Design Flip-flop" --theme violet-bloom
+```
+
+That command creates:
+
+```text
+og-og-images-without-making-it-a-whole-design-flip-flop.png
+```
+
+No canvas setup. No nudging text boxes around. No filename debate. Just an
+image ready for a post.
+
+## The backstory
+
+I was putting together drafts for
+[One Small Fix](https://onesmallfix.substack.com/) and kept running into the
+boring part nobody really wants to think about: every post wants a social image.
+
+Making one social image is harmless; repeating the same edit, adjust, and export
+routine for every post is not. So I wrote a small Python command I could drop
+into my publishing workflow, run, and mostly forget about.
+
+That is `ogimg`: small enough to maintain, predictable enough to script, and
+boring enough to reuse. The longer version of the story is in
+[OG Images Without Making It a Whole Design Flip-flop](https://mind.ruhanirabin.com/projects/og-images-without-making-it-a-whole-design-flip-flop).
+
+## What it does
+
+Give `ogimg` a title and it will:
+
+- render it on a procedural gradient background;
+- measure the actual glyphs to find a balanced, readable layout;
+- add an optional transparent PNG or WebP logo;
+- create a predictable filename when you do not provide one; and
+- save a deterministic PNG or WebP image.
+
+It deliberately refuses to silently cut off a title. If the text cannot fit at
+the minimum readable size, the command exits with a clear error.
 
 ## Install
 
-`ogimg` requires Python 3.10 or newer. Install
-[pipx](https://pipx.pypa.io/stable/installation/) before installing the CLI:
+`ogimg` requires Python 3.10 or newer. The cleanest way to install the command
+from GitHub is with [pipx](https://pipx.pypa.io/stable/installation/):
+
+```sh
+pipx install git+https://github.com/ruhanirabin/og-generator-py.git
+ogimg --help
+```
+
+If you do not have pipx yet:
 
 ```sh
 # Fedora
@@ -26,104 +69,114 @@ brew install pipx
 py -m pip install --user pipx
 ```
 
-Then add the pipx application directory to `PATH` and restart the terminal:
+Run `pipx ensurepath` and restart the terminal if `ogimg` is not found after
+installation.
+
+To reinstall the latest version from GitHub or remove it:
 
 ```sh
-pipx ensurepath
-```
-
-The repository is currently private. A GitHub user with repository access and
-a configured SSH key can install it into an isolated environment:
-
-```sh
-pipx install git+ssh://git@github.com/ruhanirabin/og-generator-py.git
-ogimg "A clean article title" -o article.png
-```
-
-Run `pipx ensurepath` and restart the terminal if the `ogimg` command is not
-found after installation. Public installation instructions will be added when
-the repository or a packaged release becomes public.
-
-Verify, update, or remove the installation:
-
-```sh
-ogimg --help
-pipx list
 pipx reinstall ogimg
 pipx uninstall ogimg
 ```
 
-`pipx reinstall ogimg` installs the latest commit available from the configured
-Git source, so repository changes must be pushed first.
-
-## Install for development
-
-`ogimg` requires Python 3.10 or newer. From the repository root:
+Check the installed version at any time:
 
 ```sh
-git clone git@github.com:ruhanirabin/og-generator-py.git
+ogimg --version
+```
+
+### Installation troubleshooting
+
+If installation stops early, check the prerequisites first:
+
+```sh
+python --version
+pipx --version
+git --version
+```
+
+On Windows, use `py --version` if `python` is not recognized. `ogimg` needs
+Python 3.10 or newer. Install missing software from the official
+[Python downloads](https://www.python.org/downloads/) or
+[Git downloads](https://git-scm.com/downloads), then follow the linked pipx
+installation guide above.
+
+If Git is unavailable, pipx can install the public GitHub source archive
+instead:
+
+```sh
+pipx install https://github.com/ruhanirabin/og-generator-py/archive/refs/heads/main.zip
+```
+
+If installation succeeds but the command is missing, run `pipx ensurepath`,
+close the terminal completely, and open it again. Pillow is installed
+automatically with `ogimg`; users do not need to install it separately.
+
+### Install for development
+
+```sh
+git clone https://github.com/ruhanirabin/og-generator-py.git
 cd og-generator-py
 python -m pip install -e '.[dev]'
 ```
 
-The only runtime dependency is Pillow. The build uses Hatchling and the package
-uses a `src/` layout.
+Pillow is the only runtime dependency. The project uses Hatchling and a
+`src/` package layout.
 
-## Usage
+## Quick start
+
+The title is the only required argument:
 
 ```sh
 ogimg "A clean article title"
 ```
 
-When `-o` is omitted, `ogimg` sanitizes the title and creates the PNG in the
-current directory. Running the command above from `~/Downloads` creates:
+The image is written to the current directory as:
 
 ```text
-~/Downloads/og-a-clean-article-title.png
+og-a-clean-article-title.png
 ```
 
-The derived filename uses the `og-` prefix, lowercase ASCII letters and digits,
-hyphens in place of punctuation or whitespace, and a maximum 80-character
-slug. If a title has no ASCII representation, the fallback is `og-image.png`.
-Supplying `-o` overrides the derived filename. Parent directories are created
-automatically:
+Choose the output path when you want something different. Missing parent
+directories are created automatically:
 
 ```sh
 ogimg "A clean article title" -o social/article.png
 ```
 
-Output format is inferred from an explicit filename:
-
-```sh
-ogimg "A clean article title" -o article.webp
-ogimg "A clean article title" -o article.png
-```
-
-With no `-o`, use `--format webp` to derive a `.webp` filename:
-
-```sh
-ogimg "A clean article title" --format webp
-# creates og-a-clean-article-title.webp
-```
-
-WebP uses fixed lossy settings (`quality=85`, `method=6`) selected for social
-preview graphics with gradients and large text. PNG remains lossless and is the
-default when no format is specified.
-
-The built-in `og` preset is 1200×630. This is the standard Open Graph canvas
-used by the project and meets Substack's recommended minimum dimensions for a
+The built-in `og` preset is 1200×630, which meets Substack's documented
+minimum dimensions for a
 [social or post preview image](https://support.substack.com/hc/en-us/articles/4408381685268-What-are-the-optimal-image-dimensions-for-my-Substack-publication).
 
-The currently available choices are explicit in the command help:
+## All command-line options
 
-```sh
-ogimg --help
-ogimg "A clean article title" --preset og --theme midnight-violet -o article.png
+```text
+ogimg TITLE [-o PATH] [--format {png,webp}] [--preset {og}]
+            [--theme THEME] [--logo PATH]
+            [--logo-position {auto,top-left,top-center,top-right}]
+ogimg --version
 ```
 
-Choose one of the built-in procedural themes:
+| Option | Default | What it does |
+| --- | --- | --- |
+| `TITLE` | required | The text rendered on the image. Quote titles containing spaces. |
+| `-o`, `--output PATH` | derived filename | Writes to a `.png` or `.webp` path. |
+| `--format {png,webp}` | `png` | Selects the format when the output path is derived or has no extension. |
+| `--preset {og}` | `og` | Selects the canvas geometry. Currently `og` is 1200×630. |
+| `--theme THEME` | `midnight-violet` | Selects one of the five built-in backgrounds listed below. |
+| `--logo PATH` | none | Adds a transparent PNG or WebP logo. |
+| `--logo-position POSITION` | `auto` | Uses `auto`, `top-left`, `top-center`, or `top-right`. |
+| `-h`, `--help` | — | Shows the command help. |
+| `--version` | — | Prints the installed `ogimg` version. |
 
-| Theme | Direction | Character |
+Run `ogimg --help` to see the choices provided by your installed version.
+
+## Themes
+
+Every background is generated in code, so there are no base images to find,
+crop, or ship.
+
+| Theme | Gradient | Character |
 | --- | --- | --- |
 | `midnight-violet` | vertical | dark navy into vivid violet |
 | `graphite-indigo` | diagonal | restrained plum-indigo into graphite |
@@ -132,42 +185,73 @@ Choose one of the built-in procedural themes:
 | `violet-bloom` | off-center radial | violet glow from the left |
 
 ```sh
-ogimg "A clean article title" --theme graphite-indigo -o graphite.png
-ogimg "A clean article title" --theme deep-ocean -o ocean.png
-ogimg "A clean article title" --theme ocean-orbit -o orbit.png
-ogimg "A clean article title" --theme violet-bloom -o bloom.png
+ogimg "A clean article title" --theme midnight-violet
+ogimg "A clean article title" --theme graphite-indigo
+ogimg "A clean article title" --theme deep-ocean
+ogimg "A clean article title" --theme ocean-orbit
+ogimg "A clean article title" --theme violet-bloom
 ```
 
-Add an optional transparent PNG or WebP logo. In `auto` mode, compact logos are
-placed at the top left and wide wordmarks are centered above the title:
+## Logos
+
+Pass a transparent PNG or WebP logo with `--logo`:
 
 ```sh
-ogimg "A clean article title" --logo path/to/logo.webp -o article.png
+ogimg "A clean article title" --logo path/to/logo.webp
 ```
 
-Override the inferred placement when needed:
+The default `auto` placement looks at the visible part of the logo rather than
+its transparent canvas. A wordmark with an aspect ratio of 2:1 or wider is
+centered above the title; a compact mark goes in the top-left corner.
+
+You can override that decision:
 
 ```sh
 ogimg "A clean article title" \
-  --logo path/to/logo.webp \
+  --logo path/to/logo.png \
   --logo-position top-right \
-  -o article.png
+  -o social/article.png
 ```
 
 Available positions are `auto`, `top-left`, `top-center`, and `top-right`.
-Automatic placement uses the logo's visible, non-transparent bounds: aspect
-ratios of 2:1 or wider use `top-center`, while compact logos use `top-left`.
-Corner logos do not displace the centered title; centered wordmarks reserve
-vertical space above it.
+Corner logos do not move the centered title. A centered wordmark reserves space
+above it.
+
+## Output and filenames
+
+An explicit `.png` or `.webp` extension selects the output format:
+
+```sh
+ogimg "A clean article title" -o article.png
+ogimg "A clean article title" -o article.webp
+```
+
+Without `-o`, use `--format` to change the derived extension:
+
+```sh
+ogimg "A clean article title" --format webp
+# og-a-clean-article-title.webp
+```
+
+PNG is lossless and is the default. WebP uses fixed lossy settings—quality 85
+and method 6—for smaller social-preview files.
+
+Derived filenames use an `og-` prefix, lowercase ASCII letters and numbers,
+and hyphens in place of whitespace or punctuation. The slug is limited to 80
+characters. Latin Unicode is normalized where possible; a title with no ASCII
+representation falls back to `og-image.png` (or `.webp`).
+
+If a file already exists at the output path, it is replaced.
 
 ## Batch generation
 
-The CLI can be called repeatedly from any external script. Create a UTF-8 text
-file with one title per line, then use the cross-platform example helper:
+For a list of posts, put one title on each line of a UTF-8 text file and use the
+included cross-platform helper:
 
 ```sh
 cp examples/titles.example.txt titles.txt
 python examples/generate_batch.py titles.txt --output-dir generated
+
 python examples/generate_batch.py titles.txt \
   --output-dir generated \
   --theme ocean-orbit \
@@ -175,75 +259,73 @@ python examples/generate_batch.py titles.txt \
   --logo path/to/logo.webp
 ```
 
-Each invocation lets `ogimg` derive the filename. A Bash loop works too:
+The helper supports `--output-dir`, `--theme`, `--format`, and `--logo`; it
+otherwise uses the CLI defaults. Empty lines are ignored.
 
-```sh
-mkdir -p generated
-while IFS= read -r title; do
-  [ -n "$title" ] && (cd generated && ogimg "$title" --theme deep-ocean)
-done < titles.txt
-```
+Duplicate titles—or different titles that sanitize to the same slug—use the
+same filename, so the later image replaces the earlier one. Use explicit
+output paths in your own script when both files need to be kept.
 
-Duplicate or equivalent sanitized titles resolve to the same filename and the
-later image replaces the earlier one. Use explicit `-o` paths in a custom script
-when duplicates must be retained.
+## Predictable by design
 
-The output directory is created when necessary. Titles are wrapped using
-rendered glyph measurements at every candidate font size. If a title cannot fit
-at the minimum readable size, the command exits with an error instead of
-truncating it.
-
-The same content, preset, theme, package version, Pillow version, and bundled
-font produce the same PNG bytes. Exact pixels may change when one of those
-inputs changes.
-
-## Design
-
-The main concepts remain independent:
+The useful part of this tool is that it does one job and gets out of the way.
+Its three concerns stay separate:
 
 ```text
-preset  = dimensions and layout geometry
-theme   = visual appearance
-content = title
+preset  = canvas dimensions and layout geometry
+theme   = colors and visual appearance
+content = title and optional logo
 ```
 
-Built-in resources are loaded through Python's package resource APIs, so the
-command does not rely on the current directory or host-installed fonts. It has
-no runtime dependency on ImageMagick, Node.js, browser automation, or a POSIX
-shell.
+Title wrapping is based on rendered glyph measurements, not character counts.
+The bundled Noto Sans Bold font is loaded from the Python package, so output
+does not depend on fonts installed on the machine or the directory where the
+command runs. There is no runtime dependency on ImageMagick, Node.js, browser
+automation, or a POSIX shell.
 
-The bundled Noto Sans Bold font comes from the
-[Noto fonts repository](https://github.com/notofonts/noto-fonts) and is
-redistributed under the SIL Open Font License 1.1; its license text is included
-beside the font.
+Given the same title, preset, theme, logo, package version, Pillow version, and
+font, PNG output is byte-for-byte repeatable. Changing one of those inputs can
+change the pixels.
 
-## Test and build
+The implementation uses cross-platform Python APIs and is currently verified
+on Linux. macOS and Windows are designed targets but still need CI verification
+before being described as tested platforms.
+
+## Development
+
+Run the full local check suite from the project root:
 
 ```sh
 python -m pytest
 python -m ruff check .
 python -m ruff format --check .
 python -m build
+git diff --check
 ```
 
-The implementation is designed around cross-platform Python APIs. Linux is the
-only locally verified platform so far; macOS and Windows support must be
-verified in CI before it is advertised as tested.
+The root [VERSION](VERSION) file is the single source of truth for releases,
+build metadata, and `ogimg --version`. User-visible changes are recorded in
+[CHANGELOG.md](CHANGELOG.md), following Keep a Changelog conventions.
 
-## Scope
+The core intentionally stays narrow. More presets, configuration, and
+cross-platform CI are natural follow-ups; raster base images and a full design
+editor are not the point of the tool.
 
-Balanced wrapping refinements, more presets, configuration, and cross-platform
-CI are planned follow-up phases. Raster base images are outside the core
-template model.
+Project guidance lives in [AGENTS.md](AGENTS.md), with durable architecture
+notes in [docs/project-memory.md](docs/project-memory.md).
 
-Project and contributor guidance lives in [AGENTS.md](AGENTS.md). Durable
-architecture context lives in [docs/project-memory.md](docs/project-memory.md).
-The source repository is
-[ruhanirabin/og-generator-py](https://github.com/ruhanirabin/og-generator-py)
-and is private during early development.
+> **Development note:** This project has been built with assistance from AI
+> tools. [AGENTS.md](AGENTS.md), project memory, tests, and dated worklogs are
+> maintained so human contributors and other coding agents can understand the
+> decisions already made and continue the work consistently. AI-generated
+> changes are still expected to be reviewed and verified like any other
+> contribution.
 
 ## License
 
-Copyright © 2026 [Ruhani Rabin](https://www.ruhanirabin.com). The project is
-released under the [MIT License](LICENSE). This is separate from the bundled
-font's SIL Open Font License 1.1.
+Copyright © 2026 [Ruhani Rabin](https://www.ruhanirabin.com).
+
+`ogimg` is released under the [MIT License](LICENSE). The bundled Noto Sans
+Bold font comes from the [Noto fonts project](https://github.com/notofonts/noto-fonts)
+and is redistributed under the SIL Open Font License 1.1; its license text is
+included with the font.

@@ -1,4 +1,4 @@
-"""Generate one image per non-empty line in a UTF-8 text file."""
+"""Generate one image per line; the project version is defined in root VERSION."""
 
 from __future__ import annotations
 

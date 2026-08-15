@@ -1,3 +1,5 @@
+"""Immutable rendering models; the project version is defined in root VERSION."""
+
 from dataclasses import dataclass
 
 

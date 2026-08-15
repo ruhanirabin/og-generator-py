@@ -1,3 +1,5 @@
+"""Renderer tests; the project version is defined in the root VERSION file."""
+
 from pathlib import Path
 
 import pytest
